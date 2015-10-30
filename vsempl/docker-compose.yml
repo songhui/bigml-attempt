@@ -1,0 +1,60 @@
+zookeeper:
+  image: jplock/zookeeper
+  ports:
+    - "2181:2181"
+    - "2888:2888"
+    - "3888:3888"
+nimbus:
+  command: --daemon nimbus drpc
+  image: fhuz/docker-storm
+  ports:
+    - "3773:3773"
+    - "3772:3772"
+    - "6627:6627"
+  links:
+    - zookeeper:zk
+supervisor:
+  command: --daemon supervisor logviewer
+  image: fhuz/docker-storm
+  ports:
+    - "8000:8000"
+    - "6700:6700"
+    - "6701:6701"
+    - "6702:6702"
+    - "6703:6703"
+  links:
+    - nimbus:nimbus
+    - zookeeper:zk
+ui:
+  command: --daemon ui
+  image: fhuz/docker-storm
+  ports:
+    - "8080:8080"
+  links:
+    - nimbus:nimbus
+    - zookeeper:zk
+kafka:
+  image: wurstmeister/kafka
+  ports:
+    - "9092:9092"
+  links:
+    - zookeeper:zk
+  environment:
+    KAFKA_ADVERTISED_HOST_NAME: 192.168.11.5
+  volumes:
+    - /var/run/docker.sock:/var/run/docker.sock
+kafka-websocket:
+  image: songhui/kafka-websocket
+  ports:
+    - "7080:7080"
+  links:
+    - zookeeper:zk
+    - kafka:kafka
+httpd:
+  image: python:2
+  working_dir: /opt
+  ports:
+    - "80:8080"
+  command: python -m SimpleHTTPServer 8080
+  volumes:
+    - ./index.html:/opt/index.html  

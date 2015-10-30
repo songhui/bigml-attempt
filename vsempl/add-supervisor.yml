@@ -1,0 +1,13 @@
+add_supervisor:
+  command: --daemon supervisor logviewer
+  image: fhuz/docker-storm
+  ports:
+    - "8000"
+    - "6700"
+    - "6701"
+    - "6702"
+    - "6703"
+  environment:
+      NIMBUS_PORT_6627_TCP_ADDR: 192.168.11.5
+      ZK_PORT_2181_TCP_ADDR: 192.168.11.5
+
